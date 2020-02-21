@@ -1,0 +1,61 @@
+
+SAM4S Xpro Bare Metal.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000018  00400000  00400000  00010000  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .init         00000004  00400018  00400018  00010018  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .fini         00000004  0040001c  0040001c  0001001c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  3 .data         00000000  20000000  20000000  00010020  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  4 .bss          00000000  20000000  20000000  00000000  2**0
+                  ALLOC
+  5 .ARM.attributes 0000002a  00000000  00000000  00010020  2**0
+                  CONTENTS, READONLY
+  6 .debug_line   00000041  00000000  00000000  0001004a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_info   00000064  00000000  00000000  0001008b  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_abbrev 00000014  00000000  00000000  000100ef  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_aranges 00000020  00000000  00000000  00010108  2**3
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00400000 <start-0x8>:
+  400000:	00000000 	.word	0x00000000
+  400004:	00400009 	.word	0x00400009
+
+00400008 <start>:
+
+.section .text
+.thumb
+.type start, %function
+start:
+	mov r0, #0x05			/* Question 1 */
+  400008:	f04f 0005 	mov.w	r0, #5
+	mov r1, #0x08
+  40000c:	f04f 0108 	mov.w	r1, #8
+	mov r2, r0
+  400010:	4602      	mov	r2, r0
+	mov r0, r1
+  400012:	4608      	mov	r0, r1
+	mov r1, r2
+  400014:	4611      	mov	r1, r2
+  400016:	e7fe      	b.n	400016 <start+0xe>
+
+Disassembly of section .init:
+
+00400018 <_init>:
+  400018:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+  40001a:	bf00      	nop
+
+Disassembly of section .fini:
+
+0040001c <_fini>:
+  40001c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+  40001e:	bf00      	nop
