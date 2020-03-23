@@ -33,9 +33,10 @@
  */
 #include <asf.h>
 #include <conf_board.h>
+#include <string.h>
 
 #define NUNCHUCK_ADDRESS 0x52
-#define LED0 IOPORT_CREATE_PIN( PIOC, 23)
+//#define LED0 IOPORT_CREATE_PIN( PIOC, 23)
 
 uint8_t nunchuck_data[6];
 static void twi_init(void)
@@ -47,21 +48,26 @@ static void twi_init(void)
 	};
 	twi_master_setup(TWI0, &opt);
 }
-
-static uint8_t nunchuck_buttonZ() 
+static uint8_t nunchuck_x_axis() 
 {
-	return (~nunchuck_data[5] >> 0) & 1;
+	return nunchuck_data[0];
+}
+static uint8_t decode_byte(uint8_t x)
+{
+	x =  (x ^ 0x17) + 0x17;
+	return x;
 }
 static void nunchuck_read(void)
 {
 	uint8_t data_received[6];
 	
-	twi_package_t packet_read =
+	twi_packet_t packet_read =
 	{
+		.addr = 0x00,
 		.addr_length = sizeof (uint16_t),
 		.chip = NUNCHUCK_ADDRESS,
 		.buffer = &data_received,
-		.length = sizeof(nunchuck_data)
+		.length = 6
 	};
 	while(twi_master_read(TWI0, &packet_read) != TWI_SUCCESS);
 	uint8_t i;
@@ -70,7 +76,7 @@ static void nunchuck_read(void)
 		nunchuck_data[i] = data_received[i];
 	}
 	const uint8_t emptyByte[] = {0x00};
-	twi_package_t packet_write =
+	twi_packet_t packet_write =
 	{
 		.addr = 0x00,
 		.addr_length = sizeof (uint16_t),
@@ -82,9 +88,9 @@ static void nunchuck_read(void)
 }
 static void nunchuck_init(void)
 {
-	const uint8_t handshake1[] = {0xF0, 0x55};
-	const uint8_t handshake2[] = {0xFB, 0x00};
-	twi_package_t packet_write1 =
+	const uint8_t handshake1[] = {0x40, 0x00};
+	const uint8_t handshake2[] = {0x00};
+	twi_packet_t packet_write1 =
 	{
 		.addr = 0x00,
 		.addr_length = sizeof (uint16_t),
@@ -92,7 +98,7 @@ static void nunchuck_init(void)
 		.buffer = (void *)handshake1,
 		.length = sizeof(handshake1)
 	};
-	twi_package_t packet_write2 =
+	twi_packet_t packet_write2 =
 	{
 		.addr = 0x00,
 		.addr_length = sizeof (uint16_t),
@@ -100,8 +106,8 @@ static void nunchuck_init(void)
 		.buffer = (void *)handshake2,
 		.length = sizeof(handshake2)
 	};
-	twi_master_write(TWI0, &packet_write1);
-	twi_master_write(TWI0, &packet_write2);
+	while(twi_master_write(TWI0, &packet_write1) != TWI_SUCCESS);
+	while(twi_master_write(TWI0, &packet_write2) != TWI_SUCCESS);
 	
 }
 
@@ -109,20 +115,19 @@ int main(void)
 {
 	sysclk_init();
 	board_init();
+	ssd1306_init();
+	ssd1306_clear();
 	
 	twi_init();
 	nunchuck_init();
 	ioport_set_pin_dir( LED0, IOPORT_DIR_OUTPUT );
 	while(true)
 	{
+		ssd1306_clear();
+		ssd1306_set_column_address(95);
+		ssd1306_write_command(SSD1306_CMD_SET_PAGE_START_ADDRESS(0));
 		nunchuck_read();
-		if(nunchuck_buttonZ == 1)
-		{
-			ioport_set_pin_level( LED0, false);
-		}
-		else
-		{
-			ioport_set_pin_level( LED0, true);
-		}
+		ssd1306_write_text("X-axis: ");
+		ssd1306_write_data(nunchuck_x_axis());
 	}
 }
