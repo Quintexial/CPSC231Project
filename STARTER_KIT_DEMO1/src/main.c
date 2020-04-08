@@ -2,6 +2,11 @@
 #include <conf_board.h>
 #include <string.h>
 
+extern void turnOnPC16(void);
+extern void turnOnPC20(void); 
+extern void turnOffPC16(void);
+extern void turnOffPC20(void);
+
 #define NUNCHUCK_ADDRESS 0x52
 #define LED1 IOPORT_CREATE_PIN( PIOC, 20)
 #define LED2 IOPORT_CREATE_PIN( PIOA, 16)
@@ -118,6 +123,7 @@ int main(void)
 	twi_init();
 	nunchuck_init();
 	ioport_set_pin_dir( LED0, IOPORT_DIR_OUTPUT );
+	
 	while(true)
 	{
 		//ssd1306_clear();
@@ -146,19 +152,19 @@ int main(void)
 		ssd1306_write_text(display_value);
 		if(nunchuck_buttonZ() == 1)
 		{
-			ioport_set_pin_level( LED1, false);
+			turnOnPC16();
 		}
 		else
 		{
-			ioport_set_pin_level( LED1, true);
+			turnOffPC16();
 		}
 		if(nunchuck_buttonC() == 1)
 		{
-			ioport_set_pin_level( LED2, false);
+			turnOnPC20();
 		}
 		else
 		{
-			ioport_set_pin_level( LED2, true);
+			turnOffPC20();
 		}
 		delay_ms(50);
 	}

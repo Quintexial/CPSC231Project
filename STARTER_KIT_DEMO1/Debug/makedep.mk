@@ -2,6 +2,8 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+src\ledmain.s
+
 src\ASF\common\components\display\ssd1306\font.c
 
 src\ASF\common\components\display\ssd1306\ssd1306.c
